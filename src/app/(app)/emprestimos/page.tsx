@@ -116,7 +116,12 @@ export default async function EmprestimosPage({
                 return (
                   <TableRow key={e.id}>
                     <TableCell className="font-medium">
-                      {e.clientes?.nome ?? "—"}
+                      <Link
+                        href={`/emprestimos/${e.id}`}
+                        className="hover:underline"
+                      >
+                        {e.clientes?.nome ?? "—"}
+                      </Link>
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {formatBRL(principalCents)}

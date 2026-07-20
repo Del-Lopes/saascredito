@@ -36,7 +36,9 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl
   const isPublic =
-    pathname.startsWith("/login") || pathname.startsWith("/auth")
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/api/jobs") // rotas de cron/N8N (auth via secret próprio)
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
