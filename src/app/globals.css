@@ -4,29 +4,47 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ===========================================================================
+   TEMA "Crédito" — design editorial portado do roadmap
+   ---------------------------------------------------------------------------
+   Estrutura:
+   1. @theme inline  — mapeia os tokens semânticos para as classes utilitárias
+   2. :root / .dark  — valores (hex do roadmap) em claro e escuro
+   3. @layer base    — reset, tipografia (Fraunces nos títulos)
+   4. @layer utilities — utilitários próprios
+
+   Fontes: a família de display é a variável --font-fraunces (gerada pelo
+   next/font em layout.tsx). NUNCA definir --font-display: var(--font-display)
+   aqui — isso cria referência circular e a fonte cai no fallback.
+   =========================================================================== */
+
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Fontes */
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-fraunces);
   --font-heading: var(--font-fraunces);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
+
+  /* Cores base */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Semânticos */
   --color-destructive: var(--destructive);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -34,64 +52,66 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
+
+  /* Chart */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Raio */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 /* ---------------------------------------------------------------------------
-   Tema "Crédito" — portado do design editorial do roadmap.
-   Hexes exatos do artifact: teal-verde #0f8a6b, neutros com viés verde,
-   dourado (juros/atenção), vermelho (atraso), azul (automação/info).
+   Valores — LIGHT (hexes exatos do roadmap)
    --------------------------------------------------------------------------- */
 :root {
-  --background: #f4f6f5; /* --bg */
-  --foreground: #12201c; /* --ink */
-  --card: #ffffff; /* --surface */
+  --background: #f4f6f5;
+  --foreground: #12201c;
+  --card: #ffffff;
   --card-foreground: #12201c;
   --popover: #ffffff;
   --popover-foreground: #12201c;
 
-  --primary: #0f8a6b; /* --accent (teal-verde) */
+  --primary: #0f8a6b;
   --primary-foreground: #ffffff;
 
-  --secondary: #eef1f0; /* --surface-2 */
+  --secondary: #eef1f0;
   --secondary-foreground: #12201c;
   --muted: #eef1f0;
-  --muted-foreground: #6d7d77; /* --ink-faint */
-  --accent: #d9efe7; /* --accent-soft */
-  --accent-foreground: #0a6650; /* --accent-deep */
+  --muted-foreground: #6d7d77;
+  --accent: #d9efe7;
+  --accent-foreground: #0a6650;
 
-  --destructive: #c0392b; /* --danger */
-  --border: #dbe2df; /* --line */
+  --destructive: #c0392b;
+  --border: #dbe2df;
   --input: #dbe2df;
   --ring: #0f8a6b;
 
-  /* Semânticos */
   --success: #0f8a6b;
   --success-foreground: #ffffff;
-  --warning: #b7791f; /* --gold: juros/atenção */
+  --warning: #b7791f;
   --warning-foreground: #ffffff;
-  --info: #2b6cb0; /* automação/N8N */
+  --info: #2b6cb0;
   --info-foreground: #ffffff;
 
-  /* Chart: rampa teal + dourado */
   --chart-1: #0f8a6b;
   --chart-2: #0a6650;
   --chart-3: #4aa88c;
@@ -100,8 +120,8 @@
 
   --radius: 0.625rem;
 
-  --sidebar: #eef1f0; /* --surface-2 */
-  --sidebar-foreground: #40514b; /* --ink-soft */
+  --sidebar: #eef1f0;
+  --sidebar-foreground: #40514b;
   --sidebar-primary: #0f8a6b;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #d9efe7;
@@ -110,34 +130,37 @@
   --sidebar-ring: #0f8a6b;
 }
 
+/* ---------------------------------------------------------------------------
+   Valores — DARK (hexes exatos do roadmap)
+   --------------------------------------------------------------------------- */
 .dark {
-  --background: #0d1512; /* --bg dark */
-  --foreground: #e8efec; /* --ink dark */
-  --card: #131f1b; /* --surface dark */
+  --background: #0d1512;
+  --foreground: #e8efec;
+  --card: #131f1b;
   --card-foreground: #e8efec;
   --popover: #131f1b;
   --popover-foreground: #e8efec;
 
-  --primary: #34c99f; /* --accent dark */
+  --primary: #34c99f;
   --primary-foreground: #0d1512;
 
-  --secondary: #182824; /* --surface-2 dark */
+  --secondary: #182824;
   --secondary-foreground: #e8efec;
   --muted: #182824;
-  --muted-foreground: #7c8d87; /* --ink-faint dark */
-  --accent: #16302a; /* --accent-soft dark */
-  --accent-foreground: #6fe0bf; /* --accent-deep dark */
+  --muted-foreground: #7c8d87;
+  --accent: #16302a;
+  --accent-foreground: #6fe0bf;
 
-  --destructive: #e8776a; /* --danger dark */
-  --border: #223530; /* --line dark */
+  --destructive: #e8776a;
+  --border: #223530;
   --input: #223530;
   --ring: #34c99f;
 
   --success: #34c99f;
   --success-foreground: #0d1512;
-  --warning: #e0b060; /* --gold dark */
+  --warning: #e0b060;
   --warning-foreground: #0d1512;
-  --info: #6fa8dc; /* --info dark */
+  --info: #6fa8dc;
   --info-foreground: #0d1512;
 
   --chart-1: #34c99f;
@@ -147,7 +170,7 @@
   --chart-5: #6fa8dc;
 
   --sidebar: #131f1b;
-  --sidebar-foreground: #adbdb7; /* --ink-soft dark */
+  --sidebar-foreground: #adbdb7;
   --sidebar-primary: #34c99f;
   --sidebar-primary-foreground: #0d1512;
   --sidebar-accent: #16302a;
@@ -156,42 +179,38 @@
   --sidebar-ring: #34c99f;
 }
 
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-  html {
-    @apply font-sans;
-  }
-  /* Títulos na serif de display (Fraunces) — caráter editorial do roadmap.
-     Usamos !important no font-variation-settings porque classes utilitárias
-     do Tailwind (ex: font-medium no CardTitle) senão vencem por especificidade
-     e travam o peso. "wght" precisa estar aqui junto de "opsz". */
+
+  /* Títulos na serif de display (Fraunces), variante display (opsz alto).
+     O peso vem daqui; não colocar font-weight utilitário concorrente nos
+     componentes de título (ver CardTitle). */
   h1,
   h2,
   [data-slot="card-title"] {
-    font-family: var(--font-fraunces), Georgia, serif;
+    font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
+    font-weight: 600;
     letter-spacing: -0.015em;
-    font-weight: 600 !important;
-    font-variation-settings: "wght" 600, "opsz" 144 !important;
+    font-variation-settings: "wght" 600, "opsz" 144;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Utilitários próprios
+   --------------------------------------------------------------------------- */
+@layer utilities {
   /* Números sempre alinhados em colunas (valores monetários, datas) */
   .tabular-nums,
   table {
     font-variant-numeric: tabular-nums;
-  }
-}
-
-@layer utilities {
-  /* Card com leve elevação e transição no hover (listas clicáveis) */
-  .card-hover {
-    @apply transition-all duration-200;
-  }
-  .card-hover:hover {
-    @apply -translate-y-0.5 shadow-md;
   }
 }
