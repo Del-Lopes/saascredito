@@ -1,0 +1,60 @@
+{
+  "name": "Gestão de Crédito — 1. Marcar atrasos (diário)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-marcar",
+      "name": "Todo dia 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APP_URL }}/api/jobs/marcar-atrasos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-jobs-secret",
+              "value": "={{ $env.JOBS_SECRET }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-marcar",
+      "name": "POST /api/jobs/marcar-atrasos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300]
+    }
+  ],
+  "connections": {
+    "Todo dia 06:00": {
+      "main": [
+        [
+          {
+            "node": "POST /api/jobs/marcar-atrasos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

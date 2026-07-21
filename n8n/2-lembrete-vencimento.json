@@ -1,0 +1,134 @@
+{
+  "name": "Gestão de Crédito — 2. Lembrete de vencimento (D-3)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-lembrete",
+      "name": "Todo dia 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.APP_URL }}/api/jobs/filas",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "tipo", "value": "lembrete" },
+            { "name": "dias", "value": "3" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-jobs-secret",
+              "value": "={{ $env.JOBS_SECRET }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-fila",
+      "name": "GET fila de lembretes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "itens",
+        "options": {}
+      },
+      "id": "split-itens",
+      "name": "Split (um por vencimento)",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "msg",
+              "name": "mensagem",
+              "value": "=Olá {{ $json.nome }}! Lembrete: seu vencimento é dia {{ $json.data_vencimento }}. Juros do mês: R$ {{ $json.juros_devido }}. Para quitar tudo: R$ {{ $json.valor_quitacao }}. Qualquer dúvida estou à disposição.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "monta-msg",
+      "name": "Monta mensagem",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {},
+      "id": "envia-whatsapp",
+      "name": "⚠️ SUBSTITUIR: enviar WhatsApp/e-mail",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1080, 300],
+      "notes": "Troque este nó pelo do seu provedor (Meta Cloud API, Z-API, Twilio, SMTP...). Destino: {{ $json.telefone }} — Texto: {{ $json.mensagem }}"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APP_URL }}/api/jobs/notificar",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-jobs-secret",
+              "value": "={{ $env.JOBS_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"ciclo_id\": \"{{ $json.ciclo_id }}\",\n  \"tenant_id\": \"{{ $json.tenant_id }}\",\n  \"canal\": \"whatsapp\",\n  \"tipo\": \"lembrete\",\n  \"status\": \"enviado\"\n}",
+        "options": {}
+      },
+      "id": "http-notificar",
+      "name": "POST /api/jobs/notificar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1300, 300]
+    }
+  ],
+  "connections": {
+    "Todo dia 09:00": {
+      "main": [[{ "node": "GET fila de lembretes", "type": "main", "index": 0 }]]
+    },
+    "GET fila de lembretes": {
+      "main": [[{ "node": "Split (um por vencimento)", "type": "main", "index": 0 }]]
+    },
+    "Split (um por vencimento)": {
+      "main": [[{ "node": "Monta mensagem", "type": "main", "index": 0 }]]
+    },
+    "Monta mensagem": {
+      "main": [[{ "node": "⚠️ SUBSTITUIR: enviar WhatsApp/e-mail", "type": "main", "index": 0 }]]
+    },
+    "⚠️ SUBSTITUIR: enviar WhatsApp/e-mail": {
+      "main": [[{ "node": "POST /api/jobs/notificar", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
