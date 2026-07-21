@@ -30,7 +30,9 @@ export default async function AppLayout({
             <Wallet className="size-5" />
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-semibold">Gestão de Crédito</p>
+            <p className="font-display text-[0.95rem] font-semibold">
+              Gestão de Crédito
+            </p>
             <p className="text-xs text-muted-foreground">Controle de caixa</p>
           </div>
         </div>

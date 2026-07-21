@@ -41,6 +41,7 @@ export default async function ClientesPage({
   return (
     <div className="p-6 lg:p-8">
       <PageHeader
+        eyebrow="Cadastro"
         title="Clientes"
         description={`${clientes?.length ?? 0} cliente(s) ativo(s)`}
       >

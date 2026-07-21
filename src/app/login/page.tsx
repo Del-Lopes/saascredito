@@ -29,7 +29,9 @@ export default function LoginPage() {
           <Wallet className="size-5" />
         </div>
         <div className="leading-tight">
-          <p className="font-semibold">Gestão de Crédito</p>
+          <p className="font-display text-lg font-semibold">
+            Gestão de Crédito
+          </p>
           <p className="text-xs text-muted-foreground">Controle de caixa</p>
         </div>
       </div>

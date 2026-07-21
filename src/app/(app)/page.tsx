@@ -45,6 +45,7 @@ export default async function DashboardPage() {
   return (
     <div className="p-6 lg:p-8">
       <PageHeader
+        eyebrow="Visão geral"
         title="Dashboard"
         description="Fluxo de caixa e próximos recebimentos."
       />

@@ -7,6 +7,7 @@ import { formatBRL, toCents } from "@/lib/money"
 import { CicloAcoes } from "./ciclo-acoes"
 import { StatCard } from "@/components/stat-card"
 import { StatusBadge } from "@/components/status-badge"
+import { Eyebrow } from "@/components/eyebrow"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -82,12 +83,13 @@ export default async function EmprestimoDetalhePage({
         }
       />
 
-      <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <Eyebrow>Empréstimo rotativo</Eyebrow>
+          <h1 className="text-[1.75rem] leading-tight">
             {emprestimo.clientes?.nome ?? "Cliente"}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Empréstimo rotativo · vencimento todo dia{" "}
             {emprestimo.dia_vencimento} · desde{" "}
             {dataCurta(emprestimo.data_emprestimo)}
@@ -141,9 +143,7 @@ export default async function EmprestimoDetalhePage({
         </Card>
       )}
 
-      <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-        Histórico de ciclos
-      </h2>
+      <Eyebrow className="mb-3">Histórico de ciclos</Eyebrow>
       <Card className="overflow-hidden py-0">
         <Table>
           <TableHeader>

@@ -61,6 +61,7 @@ export default async function EmprestimosPage({
   return (
     <div className="p-6 lg:p-8">
       <PageHeader
+        eyebrow="Carteira"
         title="Empréstimos"
         description={`${emprestimos?.length ?? 0} empréstimo(s)`}
       >

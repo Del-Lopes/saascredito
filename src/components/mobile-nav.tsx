@@ -21,7 +21,9 @@ export function MobileNav() {
         <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Wallet className="size-4" />
         </div>
-        <p className="text-sm font-semibold">Gestão de Crédito</p>
+        <p className="font-display text-[0.95rem] font-semibold">
+          Gestão de Crédito
+        </p>
       </header>
 
       <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t bg-background md:hidden">
