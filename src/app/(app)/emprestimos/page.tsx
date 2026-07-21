@@ -80,6 +80,7 @@ export default async function EmprestimosPage({
               key={f.label}
               variant={active ? "default" : "outline"}
               size="sm"
+              nativeButton={false}
               render={
                 <Link
                   href={f.key ? `/emprestimos?status=${f.key}` : "/emprestimos"}

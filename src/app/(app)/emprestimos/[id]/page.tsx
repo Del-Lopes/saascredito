@@ -78,7 +78,12 @@ export default async function EmprestimoDetalhePage({
   return (
     <div className="p-8">
       <div className="mb-6">
-        <Button variant="ghost" size="sm" render={<Link href="/emprestimos">← Empréstimos</Link>} />
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/emprestimos">← Empréstimos</Link>}
+        />
       </div>
 
       <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
