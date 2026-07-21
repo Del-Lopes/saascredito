@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -15,14 +16,14 @@ const geistMono = Geist_Mono({
 });
 
 // Display serif (títulos) — a face que dá o caráter editorial do roadmap.
-// Fonte variável: opsz (optical size) controlado via CSS ativa a variante
-// "display" (mais encorpada e expressiva).
-const fraunces = Fraunces({
+// Arquivo variável LOCAL (fontsource) — o subset "latin" do next/font/google
+// para a Fraunces NÃO inclui o basic latin (A-Z/a-z), fazendo os títulos
+// caírem no fallback. O arquivo local cobre todos os glifos.
+const fraunces = localFont({
+  src: "../../public/fonts/Fraunces-Variable.woff2",
   variable: "--font-fraunces",
-  subsets: ["latin"],
-  weight: "variable",
-  style: ["normal", "italic"],
-  axes: ["opsz"],
+  display: "swap",
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {

@@ -191,16 +191,17 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* Títulos na serif de display (Fraunces), variante display (opsz alto).
-     O peso vem daqui; não colocar font-weight utilitário concorrente nos
-     componentes de título (ver CardTitle). */
+  /* Títulos na serif de display (Fraunces).
+     Sem font-variation-settings manual: deixamos o optical-sizing automático
+     (opsz segue o tamanho da fonte). Forçar "opsz" fora do range do arquivo
+     fazia o browser descartar a fonte e cair no fallback serif. */
   h1,
   h2,
   [data-slot="card-title"] {
     font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
     font-weight: 600;
     letter-spacing: -0.015em;
-    font-variation-settings: "wght" 600, "opsz" 144;
+    font-optical-sizing: auto;
   }
 }
 
