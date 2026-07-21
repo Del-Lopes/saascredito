@@ -86,7 +86,7 @@ export default async function EmprestimoDetalhePage({
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <Eyebrow>Empréstimo rotativo</Eyebrow>
-          <h1 className="text-[1.75rem] leading-tight">
+          <h1 className="text-[2rem] leading-[1.05]">
             {emprestimo.clientes?.nome ?? "Cliente"}
           </h1>
           <p className="text-sm text-muted-foreground">

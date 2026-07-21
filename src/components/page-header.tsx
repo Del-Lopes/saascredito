@@ -15,7 +15,7 @@ export function PageHeader({
     <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div className="space-y-2">
         {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-        <h1 className="text-[1.75rem] leading-tight text-balance">{title}</h1>
+        <h1 className="text-[2rem] leading-[1.05] text-balance">{title}</h1>
         {description && (
           <p className="max-w-prose text-sm text-muted-foreground">
             {description}

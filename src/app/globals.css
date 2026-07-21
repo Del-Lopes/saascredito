@@ -167,11 +167,17 @@
   html {
     @apply font-sans;
   }
-  /* Títulos na serif de display (Fraunces) — caráter editorial do roadmap */
+  /* Títulos na serif de display (Fraunces) — caráter editorial do roadmap.
+     opsz 144 = variante display (encorpada); peso 600 dá presença. */
   h1,
-  h2 {
+  h2,
+  [data-slot="card-title"] {
     font-family: var(--font-display), Georgia, serif;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    font-variation-settings: "opsz" 144;
+  }
+  h1 {
     font-weight: 600;
   }
   /* Números sempre alinhados em colunas (valores monetários, datas) */

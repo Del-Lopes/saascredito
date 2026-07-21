@@ -15,11 +15,14 @@ const geistMono = Geist_Mono({
 });
 
 // Display serif (títulos) — a face que dá o caráter editorial do roadmap.
+// Fonte variável: opsz (optical size) controlado via CSS ativa a variante
+// "display" (mais encorpada e expressiva).
 const fraunces = Fraunces({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: "variable",
   style: ["normal", "italic"],
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
