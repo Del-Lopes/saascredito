@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 // Fonte variável: opsz (optical size) controlado via CSS ativa a variante
 // "display" (mais encorpada e expressiva).
 const fraunces = Fraunces({
-  variable: "--font-display",
+  variable: "--font-fraunces",
   subsets: ["latin"],
   weight: "variable",
   style: ["normal", "italic"],
