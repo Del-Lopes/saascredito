@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState, useState } from "react"
+import { Wallet } from "lucide-react"
 import { login, signup, type AuthState } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,14 +23,25 @@ export default function LoginPage() {
   )
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-muted/40 p-4">
+    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted/30 p-4">
+      <div className="flex items-center gap-2.5">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+          <Wallet className="size-5" />
+        </div>
+        <div className="leading-tight">
+          <p className="font-semibold">Gestão de Crédito</p>
+          <p className="text-xs text-muted-foreground">Controle de caixa</p>
+        </div>
+      </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-xl">
             {mode === "login" ? "Entrar" : "Criar conta"}
           </CardTitle>
           <CardDescription>
-            CRM de Empréstimos — gestão de crédito e fluxo de caixa
+            {mode === "login"
+              ? "Acesse sua carteira de empréstimos."
+              : "Crie sua conta para começar."}
           </CardDescription>
         </CardHeader>
         <CardContent>

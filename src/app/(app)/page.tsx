@@ -1,8 +1,16 @@
 import Link from "next/link"
+import {
+  Wallet,
+  TrendingUp,
+  BanknoteArrowUp,
+  CircleAlert,
+} from "lucide-react"
 import { requireUser } from "@/lib/auth"
 import { getDashboardData } from "@/lib/dashboard"
 import { formatBRL } from "@/lib/money"
 import { FluxoChart } from "@/components/fluxo-chart"
+import { StatCard } from "@/components/stat-card"
+import { PageHeader } from "@/components/page-header"
 import {
   Card,
   CardContent,
@@ -23,46 +31,49 @@ function diaLabel(iso: string): string {
   return `há ${Math.abs(diff)} dias`
 }
 
+function dataCurta(iso: string): string {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  })
+}
+
 export default async function DashboardPage() {
   const { supabase } = await requireUser()
   const { kpis, feed, atrasados, fluxo } = await getDashboardData(supabase)
 
-  const kpiCards = [
-    { label: "Total emprestado", valor: formatBRL(kpis.totalEmprestadoCents) },
-    { label: "A receber (mês)", valor: formatBRL(kpis.aReceberMesCents) },
-    { label: "Recebido (mês)", valor: formatBRL(kpis.recebidoMesCents) },
-    {
-      label: "Inadimplência",
-      valor: `${kpis.inadimplenciaPct}%`,
-      alerta: kpis.ciclosAtrasados > 0,
-    },
-  ]
-
   return (
-    <div className="p-8">
-      <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Fluxo de caixa e próximos recebimentos.
-        </p>
-      </header>
+    <div className="p-6 lg:p-8">
+      <PageHeader
+        title="Dashboard"
+        description="Fluxo de caixa e próximos recebimentos."
+      />
 
       {/* KPIs */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {kpiCards.map((k) => (
-          <Card key={k.label}>
-            <CardHeader className="pb-2">
-              <CardDescription>{k.label}</CardDescription>
-              <CardTitle
-                className={`text-2xl tabular-nums ${
-                  k.alerta ? "text-destructive" : ""
-                }`}
-              >
-                {k.valor}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        ))}
+        <StatCard
+          label="Total emprestado"
+          value={formatBRL(kpis.totalEmprestadoCents)}
+          icon={Wallet}
+        />
+        <StatCard
+          label="A receber no mês"
+          value={formatBRL(kpis.aReceberMesCents)}
+          icon={TrendingUp}
+        />
+        <StatCard
+          label="Recebido no mês"
+          value={formatBRL(kpis.recebidoMesCents)}
+          icon={BanknoteArrowUp}
+          tone="success"
+        />
+        <StatCard
+          label="Inadimplência"
+          value={`${kpis.inadimplenciaPct}%`}
+          hint={`${kpis.ciclosAtrasados} ciclo(s) em atraso`}
+          icon={CircleAlert}
+          tone={kpis.ciclosAtrasados > 0 ? "danger" : "default"}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -82,31 +93,40 @@ export default async function DashboardPage() {
         {/* Radar de atrasos */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
+            <CardTitle className="flex items-center gap-2 text-base">
               Atrasos
               {atrasados.length > 0 && (
-                <Badge variant="destructive" className="ml-2">
-                  {atrasados.length}
-                </Badge>
+                <Badge variant="destructive">{atrasados.length}</Badge>
               )}
             </CardTitle>
             <CardDescription>Fila de cobrança do dia.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {atrasados.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Nenhum atraso. 🎉
-              </p>
+              <div className="flex flex-col items-center gap-1 py-6 text-center">
+                <div className="flex size-10 items-center justify-center rounded-full bg-success/10 text-success">
+                  <BanknoteArrowUp className="size-5" />
+                </div>
+                <p className="mt-1 text-sm font-medium">Nenhum atraso</p>
+                <p className="text-xs text-muted-foreground">
+                  Sua carteira está em dia.
+                </p>
+              </div>
             ) : (
               atrasados.slice(0, 6).map((a) => (
                 <Link
                   key={a.id}
                   href={`/emprestimos/${a.emprestimo_id}`}
-                  className="flex items-center justify-between rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm hover:bg-destructive/10"
+                  className="flex items-center justify-between rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2.5 text-sm transition-colors hover:bg-destructive/10"
                 >
-                  <span className="truncate">{a.nome}</span>
-                  <span className="ml-2 shrink-0 text-xs text-destructive">
-                    {a.dias_atraso}d · {formatBRL(Math.round(Number(a.juros_devido) * 100))}
+                  <span className="min-w-0 truncate font-medium">{a.nome}</span>
+                  <span className="ml-2 flex shrink-0 items-center gap-2 text-xs">
+                    <Badge variant="destructive" className="tabular-nums">
+                      {a.dias_atraso}d
+                    </Badge>
+                    <span className="tabular-nums font-medium">
+                      {formatBRL(Math.round(Number(a.juros_devido) * 100))}
+                    </span>
                   </span>
                 </Link>
               ))
@@ -119,33 +139,38 @@ export default async function DashboardPage() {
       <Card className="mt-6">
         <CardHeader>
           <CardTitle className="text-base">Próximos vencimentos</CardTitle>
-          <CardDescription>
-            O que entra nos próximos 30 dias.
-          </CardDescription>
+          <CardDescription>O que entra nos próximos 30 dias.</CardDescription>
         </CardHeader>
         <CardContent>
           {feed.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="py-6 text-center text-sm text-muted-foreground">
               Nenhum vencimento nos próximos 30 dias.
             </p>
           ) : (
-            <ul className="divide-y">
+            <ul className="-my-1 divide-y">
               {feed.slice(0, 12).map((f) => (
                 <li key={f.id}>
                   <Link
                     href={`/emprestimos/${f.emprestimo_id}`}
-                    className="flex items-center justify-between py-2.5 text-sm hover:bg-muted/40"
+                    className="group flex items-center justify-between gap-3 rounded-md px-2 py-3 transition-colors hover:bg-muted/50"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="font-medium">{f.nome}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(
-                          `${f.data_vencimento}T00:00:00`
-                        ).toLocaleDateString("pt-BR")}{" "}
-                        · {diaLabel(f.data_vencimento)}
-                      </span>
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex size-9 shrink-0 flex-col items-center justify-center rounded-lg bg-muted text-center leading-none">
+                        <span className="text-[10px] uppercase text-muted-foreground">
+                          {dataCurta(f.data_vencimento).split(" ")[1]}
+                        </span>
+                        <span className="text-sm font-semibold tabular-nums">
+                          {dataCurta(f.data_vencimento).split(" ")[0]}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{f.nome}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {diaLabel(f.data_vencimento)}
+                        </p>
+                      </div>
                     </div>
-                    <span className="tabular-nums font-medium">
+                    <span className="shrink-0 text-sm font-semibold tabular-nums">
                       {formatBRL(Math.round(Number(f.juros_devido) * 100))}
                     </span>
                   </Link>

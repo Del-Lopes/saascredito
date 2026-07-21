@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { formatBRL } from "@/lib/money"
+import { cn } from "@/lib/utils"
 
 type Ponto = { semana: string; valorCents: number }
 
@@ -69,9 +70,10 @@ export function FluxoChart({ dados }: { dados: Ponto[] }) {
                 width={barW}
                 height={Math.max(barH, 2)}
                 rx={4}
-                className={
-                  active ? "fill-primary" : "fill-primary/70"
-                }
+                className={cn(
+                  "transition-all duration-150",
+                  active ? "fill-primary" : "fill-primary/55"
+                )}
               />
               {/* valor no topo quando > 0 */}
               {d.valorCents > 0 && (

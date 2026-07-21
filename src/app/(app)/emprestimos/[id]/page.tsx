@@ -1,10 +1,12 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { ArrowLeft, Wallet, Percent, BanknoteArrowUp } from "lucide-react"
 import { requireUser } from "@/lib/auth"
 import type { Ciclo, EmprestimoComCliente } from "@/lib/types"
 import { formatBRL, toCents } from "@/lib/money"
 import { CicloAcoes } from "./ciclo-acoes"
-import { Badge } from "@/components/ui/badge"
+import { StatCard } from "@/components/stat-card"
+import { StatusBadge } from "@/components/status-badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -22,23 +24,15 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-const desfechoLabel: Record<string, string> = {
-  em_aberto: "Em aberto",
-  atrasado: "Atrasado",
-  rolou: "Rolou",
-  quitou: "Quitou",
-  cancelado: "Cancelado",
+function dataLonga(iso: string): string {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })
 }
-
-const desfechoVariant: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  em_aberto: "default",
-  atrasado: "destructive",
-  rolou: "secondary",
-  quitou: "secondary",
-  cancelado: "outline",
+function dataCurta(iso: string): string {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString("pt-BR")
 }
 
 export default async function EmprestimoDetalhePage({
@@ -70,76 +64,71 @@ export default async function EmprestimoDetalhePage({
 
   const principalCents = toCents(Number(emprestimo.valor_principal))
   const taxaPct = (Number(emprestimo.taxa_juros_mensal) * 100).toFixed(2)
-
-  // Total já recebido em juros (rolagens) + quitação, a partir dos ciclos.
   const totalRecebidoCents =
     ciclos?.reduce((acc, c) => acc + toCents(Number(c.valor_pago)), 0) ?? 0
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          nativeButton={false}
-          render={<Link href="/emprestimos">← Empréstimos</Link>}
-        />
-      </div>
+    <div className="p-6 lg:p-8">
+      <Button
+        variant="ghost"
+        size="sm"
+        nativeButton={false}
+        className="mb-4 -ml-2 text-muted-foreground"
+        render={
+          <Link href="/emprestimos">
+            <ArrowLeft className="size-4" />
+            Empréstimos
+          </Link>
+        }
+      />
 
       <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
             {emprestimo.clientes?.nome ?? "Cliente"}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Empréstimo rotativo · vencimento todo dia {emprestimo.dia_vencimento}
+          <p className="mt-1 text-sm text-muted-foreground">
+            Empréstimo rotativo · vencimento todo dia{" "}
+            {emprestimo.dia_vencimento} · desde{" "}
+            {dataCurta(emprestimo.data_emprestimo)}
           </p>
         </div>
-        <Badge variant={emprestimo.status === "quitado" ? "secondary" : "default"}>
-          {emprestimo.status}
-        </Badge>
+        <StatusBadge value={emprestimo.status} />
       </header>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Principal</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">
-              {formatBRL(principalCents)}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Juros ({taxaPct}% a.m.)</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">
-              {cicloAberto
-                ? formatBRL(toCents(Number(cicloAberto.juros_devido)))
-                : "—"}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total recebido</CardDescription>
-            <CardTitle className="text-2xl tabular-nums">
-              {formatBRL(totalRecebidoCents)}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <StatCard
+          label="Principal"
+          value={formatBRL(principalCents)}
+          icon={Wallet}
+        />
+        <StatCard
+          label={`Juros (${taxaPct}% a.m.)`}
+          value={
+            cicloAberto
+              ? formatBRL(toCents(Number(cicloAberto.juros_devido)))
+              : "—"
+          }
+          icon={Percent}
+        />
+        <StatCard
+          label="Total recebido"
+          value={formatBRL(totalRecebidoCents)}
+          icon={BanknoteArrowUp}
+          tone="success"
+        />
       </div>
 
       {cicloAberto && (
-        <Card className="mb-6 border-primary/40">
+        <Card className="mb-6 border-primary/30 bg-primary/[0.03]">
           <CardHeader>
             <CardTitle className="text-base">
               Ciclo {cicloAberto.competencia} · vence{" "}
-              {new Date(
-                `${cicloAberto.data_vencimento}T00:00:00`
-              ).toLocaleDateString("pt-BR")}
+              {dataLonga(cicloAberto.data_vencimento)}
             </CardTitle>
             <CardDescription>
-              O cliente pode rolar (pagar só o juro) ou quitar (principal + juro).
+              O cliente pode rolar (pagar só o juro) ou quitar (principal +
+              juro).
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -155,11 +144,11 @@ export default async function EmprestimoDetalhePage({
       <h2 className="mb-3 text-sm font-medium text-muted-foreground">
         Histórico de ciclos
       </h2>
-      <div className="rounded-md border">
+      <Card className="overflow-hidden py-0">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Ciclo</TableHead>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-16">Ciclo</TableHead>
               <TableHead>Vencimento</TableHead>
               <TableHead className="text-right">Juros</TableHead>
               <TableHead className="text-right">Pago</TableHead>
@@ -169,11 +158,11 @@ export default async function EmprestimoDetalhePage({
           <TableBody>
             {ciclos?.map((c) => (
               <TableRow key={c.id}>
-                <TableCell className="tabular-nums">{c.competencia}</TableCell>
+                <TableCell className="tabular-nums font-medium">
+                  {c.competencia}
+                </TableCell>
                 <TableCell className="tabular-nums">
-                  {new Date(
-                    `${c.data_vencimento}T00:00:00`
-                  ).toLocaleDateString("pt-BR")}
+                  {dataCurta(c.data_vencimento)}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {formatBRL(toCents(Number(c.juros_devido)))}
@@ -184,15 +173,13 @@ export default async function EmprestimoDetalhePage({
                     : "—"}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={desfechoVariant[c.desfecho] ?? "default"}>
-                    {desfechoLabel[c.desfecho] ?? c.desfecho}
-                  </Badge>
+                  <StatusBadge value={c.desfecho} />
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </div>
+      </Card>
     </div>
   )
 }
