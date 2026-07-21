@@ -168,17 +168,15 @@
     @apply font-sans;
   }
   /* Títulos na serif de display (Fraunces) — caráter editorial do roadmap.
-     opsz 144 = variante display (encorpada); peso 600 dá presença. */
+     IMPORTANTE: quando se usa font-variation-settings, é preciso incluir "wght"
+     ali também, senão o peso volta ao default (400) e o título fica leve. */
   h1,
   h2,
   [data-slot="card-title"] {
     font-family: var(--font-display), Georgia, serif;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
     font-weight: 600;
-    font-variation-settings: "opsz" 144;
-  }
-  h1 {
-    font-weight: 600;
+    font-variation-settings: "wght" 600, "opsz" 144;
   }
   /* Números sempre alinhados em colunas (valores monetários, datas) */
   .tabular-nums,
