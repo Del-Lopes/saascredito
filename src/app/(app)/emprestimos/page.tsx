@@ -5,6 +5,7 @@ import type { Cliente, EmprestimoComCliente } from "@/lib/types"
 import { formatBRL } from "@/lib/money"
 import { jurosMensal } from "@/lib/finance"
 import { EmprestimoForm } from "./emprestimo-form"
+import { EmprestimoCard } from "./emprestimo-card"
 import { PageHeader } from "@/components/page-header"
 import { EmptyState } from "@/components/empty-state"
 import { StatusBadge } from "@/components/status-badge"
@@ -116,7 +117,16 @@ export default async function EmprestimosPage({
             }
           />
         ) : (
-          <Table>
+          <>
+            {/* Mobile: lista de cards */}
+            <div className="divide-y md:hidden">
+              {emprestimos.map((e) => (
+                <EmprestimoCard key={e.id} e={e} />
+              ))}
+            </div>
+
+            {/* Desktop: tabela */}
+            <Table className="hidden md:table">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead>Cliente</TableHead>
@@ -173,7 +183,8 @@ export default async function EmprestimosPage({
                 )
               })}
             </TableBody>
-          </Table>
+            </Table>
+          </>
         )}
       </Card>
     </div>

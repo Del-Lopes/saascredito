@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PwaRegister } from "@/components/pwa-register";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,26 @@ const fraunces = localFont({
 export const metadata: Metadata = {
   title: "Gestão de Crédito — CRM de Empréstimos",
   description: "Cadastro de empréstimos e controle de fluxo de caixa",
+  applicationName: "Gestão de Crédito",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Gestão de Crédito",
+  },
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/apple-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f6f5" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d1512" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -51,6 +72,7 @@ export default function RootLayout({
         >
           {children}
           <Toaster richColors />
+          <PwaRegister />
         </ThemeProvider>
       </body>
     </html>

@@ -38,7 +38,10 @@ export async function updateSession(request: NextRequest) {
   const isPublic =
     pathname.startsWith("/login") ||
     pathname.startsWith("/auth") ||
-    pathname.startsWith("/api/jobs") // rotas de cron/N8N (auth via secret próprio)
+    pathname.startsWith("/api/jobs") || // rotas de cron/N8N (auth via secret próprio)
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/sw.js" ||
+    pathname.startsWith("/icons/") // assets do PWA precisam ser públicos
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
