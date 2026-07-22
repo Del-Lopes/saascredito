@@ -17,6 +17,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 type ClienteOption = { id: string; nome: string }
 
@@ -29,6 +36,8 @@ export function EmprestimoForm({
 }) {
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
+
+  const [clienteId, setClienteId] = useState("")
 
   // Preview do juro/quitação enquanto digita
   const [valor, setValor] = useState("")
@@ -48,6 +57,7 @@ export function EmprestimoForm({
         setOpen(false)
         setValor("")
         setTaxaPct("")
+        setClienteId("")
       } else {
         toast.error(result.error)
       }
@@ -76,22 +86,23 @@ export function EmprestimoForm({
           <form onSubmit={onSubmit} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="cliente_id">Cliente *</Label>
-              <select
-                id="cliente_id"
-                name="cliente_id"
-                required
-                className="h-9 rounded-md border bg-transparent px-3 text-sm shadow-xs"
-                defaultValue=""
+              {/* input escondido carrega o valor para o FormData */}
+              <input type="hidden" name="cliente_id" value={clienteId} required />
+              <Select
+                value={clienteId}
+                onValueChange={(v) => setClienteId(v ?? "")}
               >
-                <option value="" disabled>
-                  Selecione…
-                </option>
-                {clientes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nome}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="cliente_id" className="w-full">
+                  <SelectValue placeholder="Selecione…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clientes.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

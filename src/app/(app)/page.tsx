@@ -31,16 +31,38 @@ function diaLabel(iso: string): string {
   return `há ${Math.abs(diff)} dias`
 }
 
-function dataCurta(iso: string): string {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-  })
+/** "26" (dia) e "ago" (mês abreviado, sem o "de"). */
+function diaMes(iso: string): { dia: string; mes: string } {
+  const d = new Date(`${iso}T00:00:00`)
+  return {
+    dia: String(d.getDate()).padStart(2, "0"),
+    mes: d
+      .toLocaleDateString("pt-BR", { month: "short" })
+      .replace(".", ""),
+  }
+}
+
+/** Agrupa os vencimentos por data (mantém a ordem cronológica). */
+function agruparPorDia<T extends { data_vencimento: string }>(
+  itens: T[]
+): { data: string; itens: T[]; total: number }[] {
+  const mapa = new Map<string, T[]>()
+  for (const it of itens) {
+    const arr = mapa.get(it.data_vencimento) ?? []
+    arr.push(it)
+    mapa.set(it.data_vencimento, arr)
+  }
+  return [...mapa.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([data, its]) => ({ data, itens: its, total: its.length }))
 }
 
 export default async function DashboardPage() {
   const { supabase } = await requireUser()
   const { kpis, feed, atrasados, fluxo } = await getDashboardData(supabase)
+
+  // Agrupa o feed por dia de vencimento (mostra a data uma vez por grupo).
+  const feedPorDia = agruparPorDia(feed).slice(0, 8)
 
   return (
     <div className="p-6 lg:p-8">
@@ -143,41 +165,69 @@ export default async function DashboardPage() {
           <CardDescription>O que entra nos próximos 30 dias.</CardDescription>
         </CardHeader>
         <CardContent>
-          {feed.length === 0 ? (
+          {feedPorDia.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
               Nenhum vencimento nos próximos 30 dias.
             </p>
           ) : (
-            <ul className="-my-1 divide-y">
-              {feed.slice(0, 12).map((f) => (
-                <li key={f.id}>
-                  <Link
-                    href={`/emprestimos/${f.emprestimo_id}`}
-                    className="group flex items-center justify-between gap-3 rounded-md px-2 py-3 transition-colors hover:bg-muted/50"
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex size-9 shrink-0 flex-col items-center justify-center rounded-lg bg-muted text-center leading-none">
+            <div className="space-y-5">
+              {feedPorDia.map((grupo) => {
+                const { dia, mes } = diaMes(grupo.data)
+                const totalDia = grupo.itens.reduce(
+                  (acc, f) => acc + Math.round(Number(f.juros_devido) * 100),
+                  0
+                )
+                return (
+                  <div key={grupo.data}>
+                    {/* Cabeçalho do dia — a "tag" da data aparece uma vez */}
+                    <div className="mb-1.5 flex items-center gap-3">
+                      <div className="flex size-10 shrink-0 flex-col items-center justify-center rounded-lg bg-muted text-center leading-none">
                         <span className="text-[10px] uppercase text-muted-foreground">
-                          {dataCurta(f.data_vencimento).split(" ")[1]}
+                          {mes}
                         </span>
                         <span className="text-sm font-semibold tabular-nums">
-                          {dataCurta(f.data_vencimento).split(" ")[0]}
+                          {dia}
                         </span>
                       </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{f.nome}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {diaLabel(f.data_vencimento)}
-                        </p>
+                      <div className="flex flex-1 items-baseline justify-between border-b pb-1.5">
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {diaLabel(grupo.data)}
+                          {grupo.total > 1 && (
+                            <span className="ml-1.5 text-muted-foreground/70">
+                              · {grupo.total} vencimentos
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-xs font-semibold tabular-nums text-muted-foreground">
+                          {formatBRL(totalDia)}
+                        </span>
                       </div>
                     </div>
-                    <span className="shrink-0 text-sm font-semibold tabular-nums">
-                      {formatBRL(Math.round(Number(f.juros_devido) * 100))}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+
+                    {/* Linhas do dia — enxutas, cada uma clicável */}
+                    <ul className="ml-[3.25rem] divide-y">
+                      {grupo.itens.map((f) => (
+                        <li key={f.id}>
+                          <Link
+                            href={`/emprestimos/${f.emprestimo_id}`}
+                            className="flex items-center justify-between gap-3 rounded-md px-2 py-2 transition-colors hover:bg-muted/50"
+                          >
+                            <span className="truncate text-sm font-medium">
+                              {f.nome}
+                            </span>
+                            <span className="shrink-0 text-sm font-semibold tabular-nums">
+                              {formatBRL(
+                                Math.round(Number(f.juros_devido) * 100)
+                              )}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              })}
+            </div>
           )}
         </CardContent>
       </Card>
