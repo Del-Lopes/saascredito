@@ -4,9 +4,12 @@ import { ArrowLeft, Wallet, Percent, BanknoteArrowUp } from "lucide-react"
 import { requireUser } from "@/lib/auth"
 import type { Ciclo, EmprestimoComCliente } from "@/lib/types"
 import { formatBRL, toCents } from "@/lib/money"
+import { calcularRecuperacao } from "@/lib/recuperacao"
+import { cn } from "@/lib/utils"
 import { CicloAcoes } from "./ciclo-acoes"
 import { StatCard } from "@/components/stat-card"
 import { StatusBadge } from "@/components/status-badge"
+import { RecuperacaoBadge } from "@/components/recuperacao-badge"
 import { Eyebrow } from "@/components/eyebrow"
 import { Button } from "@/components/ui/button"
 import {
@@ -68,6 +71,8 @@ export default async function EmprestimoDetalhePage({
   const totalRecebidoCents =
     ciclos?.reduce((acc, c) => acc + toCents(Number(c.valor_pago)), 0) ?? 0
 
+  const rec = calcularRecuperacao(principalCents, totalRecebidoCents)
+
   return (
     <div className="p-6 lg:p-8">
       <Button
@@ -86,9 +91,16 @@ export default async function EmprestimoDetalhePage({
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <Eyebrow>Empréstimo rotativo</Eyebrow>
-          <h1 className="text-[2rem] leading-[1.05]">
-            {emprestimo.clientes?.nome ?? "Cliente"}
-          </h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-[2rem] leading-[1.05]">
+              {emprestimo.clientes?.nome ?? "Cliente"}
+            </h1>
+            <RecuperacaoBadge
+              nivel={rec.nivel}
+              label={rec.label}
+              pct={rec.pct}
+            />
+          </div>
           <p className="text-sm text-muted-foreground">
             Empréstimo rotativo · vencimento todo dia{" "}
             {emprestimo.dia_vencimento} · desde{" "}
@@ -99,11 +111,50 @@ export default async function EmprestimoDetalhePage({
       </header>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <StatCard
-          label="Principal"
-          value={formatBRL(principalCents)}
-          icon={Wallet}
-        />
+        {/* Principal + recuperação */}
+        <Card className="p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Principal
+              </p>
+              <p className="mt-1.5 text-2xl font-semibold tabular-nums tracking-tight">
+                {formatBRL(principalCents)}
+              </p>
+            </div>
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Wallet className="size-[1.15rem]" />
+            </div>
+          </div>
+          {/* Barra de recuperação do principal */}
+          <div className="mt-4 space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Recuperado</span>
+              <span
+                className={cn(
+                  "font-semibold tabular-nums",
+                  rec.nivel === "lucrando" && "text-success",
+                  rec.nivel === "parcial" && "text-warning",
+                  rec.nivel === "nenhum" && "text-destructive"
+                )}
+              >
+                {rec.pct}%
+              </span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className={cn(
+                  "h-full rounded-full transition-all",
+                  rec.nivel === "lucrando" && "bg-success",
+                  rec.nivel === "parcial" && "bg-warning",
+                  rec.nivel === "nenhum" && "bg-destructive/40"
+                )}
+                style={{ width: `${rec.pctBarra}%` }}
+              />
+            </div>
+          </div>
+        </Card>
+
         <StatCard
           label={`Juros (${taxaPct}% a.m.)`}
           value={

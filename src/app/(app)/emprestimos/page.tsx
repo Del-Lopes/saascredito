@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { HandCoins, Plus, ChevronRight } from "lucide-react"
+import { HandCoins, Plus, ChevronRight, Search } from "lucide-react"
 import { requireUser } from "@/lib/auth"
 import type { Cliente, EmprestimoComCliente } from "@/lib/types"
 import { formatBRL } from "@/lib/money"
@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/page-header"
 import { EmptyState } from "@/components/empty-state"
 import { StatusBadge } from "@/components/status-badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import {
@@ -21,24 +22,31 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-type SearchParams = Promise<{ status?: string }>
+type SearchParams = Promise<{ status?: string; q?: string }>
 
 export default async function EmprestimosPage({
   searchParams,
 }: {
   searchParams: SearchParams
 }) {
-  const { status } = await searchParams
+  const { status, q } = await searchParams
   const { supabase } = await requireUser()
+
+  // Se há busca, filtramos pelo nome do cliente (join interno).
+  const clientesSel = q ? "clientes!inner(id, nome)" : "clientes(id, nome)"
 
   let query = supabase
     .from("emprestimos")
-    .select("*, clientes(id, nome)")
+    .select(`*, ${clientesSel}`)
     .eq("ativo", true)
     .order("created_at", { ascending: false })
 
   if (status && ["ativo", "quitado", "cancelado"].includes(status)) {
     query = query.eq("status", status)
+  }
+
+  if (q) {
+    query = query.ilike("clientes.nome", `%${q}%`)
   }
 
   const [{ data: emprestimos }, { data: clientes }] = await Promise.all([
@@ -77,29 +85,52 @@ export default async function EmprestimosPage({
         />
       </PageHeader>
 
-      {/* Filtro segmentado */}
-      <div className="mb-4 inline-flex rounded-lg border bg-muted/40 p-1">
-        {filtros.map((f) => {
-          const active = status === f.key || (!status && !f.key)
-          return (
-            <Link
-              key={f.label}
-              href={f.key ? `/emprestimos?status=${f.key}` : "/emprestimos"}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-                active
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {f.label}
-            </Link>
-          )
-        })}
+      {/* Busca + filtro segmentado */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <form method="get" className="relative w-full max-w-xs">
+          {status && <input type="hidden" name="status" value={status} />}
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            name="q"
+            placeholder="Buscar por cliente…"
+            defaultValue={q ?? ""}
+            className="pl-9"
+          />
+        </form>
+
+        <div className="inline-flex rounded-lg border bg-muted/40 p-1">
+          {filtros.map((f) => {
+            const active = status === f.key || (!status && !f.key)
+            const params = new URLSearchParams()
+            if (f.key) params.set("status", f.key)
+            if (q) params.set("q", q)
+            const qs = params.toString()
+            return (
+              <Link
+                key={f.label}
+                href={qs ? `/emprestimos?${qs}` : "/emprestimos"}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {f.label}
+              </Link>
+            )
+          })}
+        </div>
       </div>
 
       <Card className="overflow-hidden py-0">
-        {vazio ? (
+        {vazio && q ? (
+          <EmptyState
+            icon={Search}
+            title="Nada encontrado"
+            description={`Nenhum empréstimo para "${q}".`}
+          />
+        ) : vazio ? (
           <EmptyState
             icon={HandCoins}
             title="Nenhum empréstimo"
