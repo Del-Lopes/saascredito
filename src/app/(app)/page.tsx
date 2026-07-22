@@ -170,7 +170,7 @@ export default async function DashboardPage() {
               Nenhum vencimento nos próximos 30 dias.
             </p>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-3">
               {feedPorDia.map((grupo) => {
                 const { dia, mes } = diaMes(grupo.data)
                 const totalDia = grupo.itens.reduce(
@@ -180,16 +180,16 @@ export default async function DashboardPage() {
                 return (
                   <div key={grupo.data}>
                     {/* Cabeçalho do dia — a "tag" da data aparece uma vez */}
-                    <div className="mb-1.5 flex items-center gap-3">
-                      <div className="flex size-10 shrink-0 flex-col items-center justify-center rounded-lg bg-muted text-center leading-none">
-                        <span className="text-[10px] uppercase text-muted-foreground">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex size-9 shrink-0 flex-col items-center justify-center rounded-md bg-muted text-center leading-none">
+                        <span className="text-[9px] uppercase text-muted-foreground">
                           {mes}
                         </span>
                         <span className="text-sm font-semibold tabular-nums">
                           {dia}
                         </span>
                       </div>
-                      <div className="flex flex-1 items-baseline justify-between border-b pb-1.5">
+                      <div className="flex flex-1 items-baseline justify-between border-b pb-1">
                         <span className="text-xs font-medium text-muted-foreground">
                           {diaLabel(grupo.data)}
                           {grupo.total > 1 && (
@@ -205,12 +205,12 @@ export default async function DashboardPage() {
                     </div>
 
                     {/* Linhas do dia — enxutas, cada uma clicável */}
-                    <ul className="ml-[3.25rem] divide-y">
+                    <ul className="ml-[2.875rem] divide-y">
                       {grupo.itens.map((f) => (
                         <li key={f.id}>
                           <Link
                             href={`/emprestimos/${f.emprestimo_id}`}
-                            className="flex items-center justify-between gap-3 rounded-md px-2 py-2 transition-colors hover:bg-muted/50"
+                            className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/50"
                           >
                             <span className="truncate text-sm font-medium">
                               {f.nome}
