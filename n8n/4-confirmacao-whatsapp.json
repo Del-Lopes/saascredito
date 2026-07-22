@@ -1,0 +1,76 @@
+{
+  "name": "Gestão de Crédito — 4. Confirmação via WhatsApp (webhook)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "wpp-inbound",
+      "name": "⚠️ SUBSTITUIR: recebimento do WhatsApp",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "notes": "Troque por um Webhook do seu provedor (Meta Cloud API / Z-API / Twilio inbound). Ele deve entregar, para o próximo nó, os campos: telefone (do remetente) e mensagem (texto). Ajuste as expressões no nó 'Extrai telefone e mensagem' conforme o payload do provedor."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "tel",
+              "name": "telefone",
+              "value": "={{ $json.telefone || $json.from || $json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "msg",
+              "name": "mensagem",
+              "value": "={{ $json.mensagem || $json.text || $json.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extrai",
+      "name": "Extrai telefone e mensagem",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.APP_URL }}/api/jobs/confirmar",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-jobs-secret",
+              "value": "={{ $env.JOBS_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefone\": \"{{ $json.telefone }}\",\n  \"mensagem\": \"{{ $json.mensagem }}\"\n}",
+        "options": {}
+      },
+      "id": "http-confirmar",
+      "name": "POST /api/jobs/confirmar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [640, 300]
+    }
+  ],
+  "connections": {
+    "⚠️ SUBSTITUIR: recebimento do WhatsApp": {
+      "main": [[{ "node": "Extrai telefone e mensagem", "type": "main", "index": 0 }]]
+    },
+    "Extrai telefone e mensagem": {
+      "main": [[{ "node": "POST /api/jobs/confirmar", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

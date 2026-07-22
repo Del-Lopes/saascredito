@@ -62,3 +62,43 @@ export interface Profile {
   role: "owner" | "operador"
   created_at: string
 }
+
+export type ConfirmacaoIntencao = "rolar" | "quitar" | "duvida" | "indefinido"
+export type ConfirmacaoStatus = "pendente" | "confirmado" | "recusado"
+
+export interface Confirmacao {
+  id: string
+  tenant_id: string
+  cliente_id: string | null
+  ciclo_id: string | null
+  telefone: string | null
+  mensagem: string
+  intencao: ConfirmacaoIntencao
+  ia_confianca: number | null
+  status: ConfirmacaoStatus
+  resolvido_por: string | null
+  resolvido_em: string | null
+  created_at: string
+}
+
+/** Linha da view vw_confirmacoes (confirmação + cliente + ciclo). */
+export interface ConfirmacaoView {
+  id: string
+  tenant_id: string
+  cliente_id: string | null
+  ciclo_id: string | null
+  telefone: string | null
+  mensagem: string
+  intencao: ConfirmacaoIntencao
+  ia_confianca: number | null
+  status: ConfirmacaoStatus
+  resolvido_em: string | null
+  created_at: string
+  cliente_nome: string | null
+  emprestimo_id: string | null
+  competencia: number | null
+  data_vencimento: string | null
+  juros_devido: number | null
+  valor_quitacao: number | null
+  ciclo_desfecho: CicloDesfecho | null
+}

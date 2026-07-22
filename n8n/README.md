@@ -1,13 +1,33 @@
 # Workflows do N8N — prontos para importar
 
-Três workflows que automatizam o follow-up. O app já expõe a API; aqui está o
-"braço" que dispara as mensagens. Detalhes da API em [`../docs/N8N.md`](../docs/N8N.md).
+Quatro workflows que automatizam o follow-up. O app já expõe a API; aqui está o
+"braço" que dispara/recebe as mensagens. Detalhes da API em [`../docs/N8N.md`](../docs/N8N.md).
 
-| Arquivo | O que faz | Horário |
+| Arquivo | O que faz | Gatilho |
 |---|---|---|
-| `1-marcar-atrasos.json` | Marca ciclos vencidos como `atrasado` | 06:00 |
-| `2-lembrete-vencimento.json` | Avisa quem vence em 3 dias | 09:00 |
-| `3-cobranca-atraso.json` | Cobra quem está atrasado | 10:00 |
+| `1-marcar-atrasos.json` | Marca ciclos vencidos como `atrasado` | Cron 06:00 |
+| `2-lembrete-vencimento.json` | Avisa quem vence em 3 dias | Cron 09:00 |
+| `3-cobranca-atraso.json` | Cobra quem está atrasado | Cron 10:00 |
+| `4-confirmacao-whatsapp.json` | Recebe a RESPOSTA do cliente e cria uma confirmação pendente no app | Webhook (msg recebida) |
+
+## Sobre o workflow 4 (confirmação via WhatsApp)
+
+Os workflows 1–3 **enviam** mensagens. O workflow 4 é o inverso: **recebe** a
+resposta do cliente e a transforma em uma pendência para você revisar na tela
+**Confirmações** do app.
+
+Fluxo: `[recebimento do WhatsApp] → [extrai telefone+mensagem] → POST /api/jobs/confirmar`.
+O app classifica a intenção com IA (Groq) e, achando o cliente pelo telefone,
+cria a confirmação pendente. Você dá a baixa (rolar/quitar) com 1 clique no app.
+
+**Você precisa:**
+- Trocar o nó **"⚠️ SUBSTITUIR: recebimento do WhatsApp"** por um Webhook do seu
+  provedor (Meta Cloud API / Z-API / Twilio inbound), configurado para disparar
+  quando uma mensagem chega.
+- Conferir o nó **"Extrai telefone e mensagem"** — ajuste as expressões
+  (`$json.telefone`, `$json.mensagem`) conforme o formato do payload do seu provedor.
+- Cadastrar a env **`GROQ_API_KEY`** no app (Vercel). Sem ela, o app usa um
+  fallback por palavra-chave (funciona, mas classifica pior respostas ambíguas).
 
 ## Passo a passo
 

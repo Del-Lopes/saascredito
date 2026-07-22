@@ -14,6 +14,7 @@ protegida pelo header `x-jobs-secret` (valor da env `JOBS_SECRET`).
 | `GET`  | `/api/jobs/filas?tipo=cobranca` | Ciclos atrasados sem cobrança enviada hoje |
 | `POST` | `/api/jobs/notificar` | Registra que uma notificação foi enviada (dedup) |
 | `POST` | `/api/jobs/marcar-atrasos` | Marca ciclos vencidos como `atrasado` (rodar 1x/dia) |
+| `POST` | `/api/jobs/confirmar` | Recebe a resposta do cliente (WhatsApp), classifica com IA e cria uma confirmação pendente |
 
 Todos exigem o header:
 
@@ -59,6 +60,32 @@ x-jobs-secret: <valor de JOBS_SECRET>
 > Se já houver um envio `enviado` para o mesmo `(ciclo_id, tipo)`, a resposta
 > vem `{ ok: true, duplicado: true }` — o índice único no banco garante a
 > idempotência mesmo se o workflow rodar duas vezes.
+
+### Receber resposta do cliente (POST /api/jobs/confirmar)
+
+Body (o que o N8N envia a partir da mensagem recebida no WhatsApp):
+
+```json
+{
+  "telefone": "+5511999998888",
+  "mensagem": "vou rolar esse mês"
+}
+```
+
+O app classifica a intenção com IA (Groq; sem `GROQ_API_KEY` usa fallback por
+palavra-chave), acha o cliente pelo telefone e o ciclo em aberto, e cria uma
+**confirmação pendente**. Resposta:
+
+```json
+{ "ok": true, "matched": true, "intencao": "rolar", "confianca": 0.95 }
+```
+
+Se não achar o cliente pelo telefone, retorna `{ ok: true, matched: false }` e
+**não** cria pendência (evita registro órfão). A baixa real (rolar/quitar) é feita
+depois pelo operador, na tela **Confirmações** do app, com 1 clique.
+
+> **Nunca dá baixa automática.** A IA só classifica; o dinheiro só se move quando
+> você confirma, autenticado. Ideal para Pix manual (você valida o comprovante).
 
 ## Workflows a criar no N8N
 

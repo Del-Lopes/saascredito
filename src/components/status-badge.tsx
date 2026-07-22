@@ -17,6 +17,15 @@ const MAP: Record<string, { label: string; cls: string }> = {
   },
   rolou: { label: "Rolou", cls: "bg-warning/15 text-warning" },
   quitou: { label: "Quitou", cls: "bg-success/10 text-success" },
+  // intenção da confirmação
+  rolar: { label: "Quer rolar", cls: "bg-warning/15 text-warning" },
+  quitar: { label: "Quer quitar", cls: "bg-success/10 text-success" },
+  duvida: { label: "Dúvida", cls: "bg-info/10 text-info" },
+  indefinido: { label: "Indefinido", cls: "bg-muted text-muted-foreground" },
+  // status da confirmação
+  pendente: { label: "Pendente", cls: "bg-primary/10 text-primary" },
+  confirmado: { label: "Confirmado", cls: "bg-success/10 text-success" },
+  recusado: { label: "Recusado", cls: "bg-muted text-muted-foreground" },
 }
 
 export function StatusBadge({ value }: { value: string }) {

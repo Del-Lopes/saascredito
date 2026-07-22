@@ -2,13 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Users, HandCoins } from "lucide-react"
+import { LayoutDashboard, Users, HandCoins, Inbox } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const links = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "/emprestimos", label: "Empréstimos", icon: HandCoins },
+  { href: "/confirmacoes", label: "Confirmações", icon: Inbox },
 ]
 
 export function AppNav() {

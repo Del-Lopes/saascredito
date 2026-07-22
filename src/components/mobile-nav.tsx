@@ -2,13 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Wallet, LayoutDashboard, Users, HandCoins } from "lucide-react"
+import { Wallet, LayoutDashboard, Users, HandCoins, Inbox } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const links = [
   { href: "/", label: "Início", icon: LayoutDashboard },
   { href: "/clientes", label: "Clientes", icon: Users },
-  { href: "/emprestimos", label: "Empréstimos", icon: HandCoins },
+  { href: "/emprestimos", label: "Emprést.", icon: HandCoins },
+  { href: "/confirmacoes", label: "Follow-up", icon: Inbox },
 ]
 
 /** Barra superior + navegação inferior fixa (apenas mobile). */
@@ -26,7 +27,7 @@ export function MobileNav() {
         </p>
       </header>
 
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 border-t bg-background md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t bg-background md:hidden">
         {links.map((link) => {
           const active =
             link.href === "/"
