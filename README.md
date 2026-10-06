@@ -6,19 +6,17 @@ A multi-tenant SaaS application for managing lending operations, customers and r
 
 The application is designed around tenant isolation, authenticated access and financial-domain rules. It demonstrates a production-oriented full-stack architecture using Next.js, Supabase and PostgreSQL.
 
-## Key Features
+## Engineering Highlights
 
-- Email/password authentication
-- Automatic tenant onboarding
-- Multi-tenant architecture
+- Multi-tenant architecture with database-level isolation
 - PostgreSQL Row Level Security (RLS)
-- Customer management
-- Loan management
+- Authenticated tenant onboarding
+- Customer and loan management
 - Monthly recurring loan cycles
 - Dashboard KPIs
-- Soft delete
-- Financial calculations designed to avoid floating-point money errors
-- Validation with Zod
+- Soft-delete patterns
+- Financial calculations designed to avoid JavaScript floating-point money errors
+- Zod validation
 - Automated tests with Vitest
 
 ## Tech Stack
@@ -72,13 +70,14 @@ npm test
 
 ## Project Status
 
-This repository is under active development. The architecture and implementation are evolving as additional loan-cycle and financial-domain features are added.
+Active development. The architecture and implementation continue to evolve as additional loan-cycle and financial-domain features are added.
 
-## Public Release Checklist
+## Security Notes
 
-Before making this repository public, verify that:
+This public repository intentionally keeps credentials and environment-specific secrets outside source control.
 
-- no environment files or credentials are committed;
+Before deploying, verify that:
+
 - no real customer or financial data is present;
 - database migrations contain no production secrets;
 - service-role credentials are never exposed client-side;
