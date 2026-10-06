@@ -1,86 +1,85 @@
-# CRM de Empréstimos — App (Fase 1)
+# Credit Management SaaS
 
-Web app do SaaS de gestão de crédito. Ver o [`../ROADMAP.md`](../ROADMAP.md) para o contexto completo, o modelo de dados e as fases.
+A multi-tenant SaaS application for managing lending operations, customers and recurring loan cycles.
 
-**Stack:** Next.js 16 (App Router) · Supabase (Postgres + Auth + RLS) · Tailwind + shadcn/ui (Base UI) · TypeScript · Zod.
+## Overview
 
-## O que a Fase 1 entrega
+The application is designed around tenant isolation, authenticated access and financial-domain rules. It demonstrates a production-oriented full-stack architecture using Next.js, Supabase and PostgreSQL.
 
-- Autenticação (login/cadastro por e-mail e senha).
-- Cada usuário novo ganha automaticamente um **tenant** próprio (multi-tenant desde o dia 1, via trigger no banco).
-- **RLS** ativo em todas as tabelas — isolamento total entre tenants.
-- CRUD de **clientes** (com busca e soft delete).
-- CRUD de **empréstimos** (modelo rotativo mensal), gerando o 1º ciclo automaticamente.
-- Dashboard com KPIs básicos.
+## Key Features
 
-## Setup
+- Email/password authentication
+- Automatic tenant onboarding
+- Multi-tenant architecture
+- PostgreSQL Row Level Security (RLS)
+- Customer management
+- Loan management
+- Monthly recurring loan cycles
+- Dashboard KPIs
+- Soft delete
+- Financial calculations designed to avoid floating-point money errors
+- Validation with Zod
+- Automated tests with Vitest
 
-### 1. Criar o projeto no Supabase
+## Tech Stack
 
-1. Crie um projeto em [supabase.com](https://supabase.com).
-2. Em **Project Settings → API**, copie: `Project URL`, `anon public key` e `service_role key`.
-3. Preencha o `.env.local` (já existe um template):
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Supabase
+- PostgreSQL
+- Tailwind CSS
+- shadcn/ui / Base UI
+- Zod
+- Vitest
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-   SUPABASE_SERVICE_ROLE_KEY=...
-   ```
+## Architecture
 
-### 2. Aplicar as migrations
+~~~text
+Next.js App Router
+        │
+        ├── Authentication
+        ├── Application UI
+        ├── Domain / financial logic
+        └── Supabase
+              ├── PostgreSQL
+              ├── Auth
+              └── Row Level Security
+~~~
 
-No **SQL Editor** do Supabase, rode em ordem:
+## Data Isolation
 
-1. `supabase/migrations/0001_init.sql` — tabelas, RLS e o trigger de onboarding.
-2. `supabase/migrations/0002_views.sql` — views para dashboard/N8N.
+Every tenant is isolated at the database layer using PostgreSQL RLS. Application queries operate through the authenticated user session rather than relying only on frontend filtering.
 
-> Ou, se usar a Supabase CLI: `supabase db push`.
+## Money Handling
 
-### 3. Configurar Auth
+Financial values are represented using database numeric values and dedicated helpers rather than JavaScript floating-point arithmetic.
 
-Em **Authentication → Providers → Email**, para desenvolvimento local, é
-recomendável **desativar "Confirm email"** (senão o cadastro exige confirmação
-por e-mail antes do primeiro login).
+## Development
 
-### 4. Rodar
+Create a local environment file from the required variables and never commit real credentials.
 
-```bash
+~~~bash
 npm install
 npm run dev
-```
+~~~
 
-Acesse http://localhost:3000 → você será redirecionado para `/login`.
-Crie uma conta e comece a cadastrar.
+Run tests:
 
-## Estrutura
+~~~bash
+npm test
+~~~
 
-```
-src/
-  app/
-    login/            # autenticação (fora da área logada)
-    (app)/            # área autenticada (layout com sidebar)
-      page.tsx        # dashboard (KPIs)
-      clientes/       # CRUD de clientes
-      emprestimos/    # CRUD de empréstimos
-  lib/
-    supabase/         # clients browser/server + refresh de sessão
-    auth.ts           # requireUser() — guarda de páginas
-    finance.ts        # motor financeiro (juros simples, ciclos)
-    money.ts          # helpers de dinheiro (centavos, BRL)
-    types.ts          # tipos do domínio
-  proxy.ts            # antigo "middleware" (Next 16) — protege rotas
-supabase/migrations/  # SQL versionado
-```
+## Project Status
 
-## Convenções (importantes)
+This repository is under active development. The architecture and implementation are evolving as additional loan-cycle and financial-domain features are added.
 
-- **Dinheiro nunca em `float`** — `numeric` no banco, helpers em `lib/money.ts`.
-- **Todo acesso a dados passa por RLS** — as queries usam a sessão do usuário.
-- **Soft delete** — clientes/empréstimos são inativados, nunca removidos.
-- **Next.js 16**: o arquivo de middleware chama-se `proxy.ts` (runtime nodejs);
-  APIs de request (`cookies()`) são assíncronas. Ver `AGENTS.md`.
+## Public Release Checklist
 
-## Próximo: Fase 2
+Before making this repository public, verify that:
 
-Motor de ciclos completo (ações **Rolar** / **Quitar**), registro em
-`movimentacoes`, marcação de atraso e testes de `lib/finance.ts`.
+- no environment files or credentials are committed;
+- no real customer or financial data is present;
+- database migrations contain no production secrets;
+- service-role credentials are never exposed client-side;
+- third-party assets and dependencies are appropriately licensed.
